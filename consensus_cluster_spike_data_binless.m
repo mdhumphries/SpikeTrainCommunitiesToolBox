@@ -26,7 +26,7 @@ function [Gmax,Gcon,varargout] = consensus_cluster_spike_data_binless(spkdata,Di
 % time-stamp for stimulus presentation: for 2 seconds of data starting at stimulus presentation T = [0 2]; for 2
 % seconds starting 0.5 second before stimulus T = [-0.5 1.5])
 %
-% B is the spike-time quantisation value - default is 1ms (B=0.001)  
+% B is the quantisation value for the convolution function - try 1ms (B=0.001)  
 %
 % ... = CLUSTER_SPIKE_DATA_BINS(...,OPTS) sets all options contained in the OPTS structure - omitting a field will use the default option, indicated
 % by the parentheses:
@@ -91,7 +91,7 @@ function [Gmax,Gcon,varargout] = consensus_cluster_spike_data_binless(spkdata,Di
 if r==1 Didxs = Didxs'; end   % make column vector
 
 % defaults  
-bin = 0.001;    % 1ms bins
+% bin = 0.001;    % 1ms bins
 opts.BLmeth = 'Gaussian';   % use Gaussian window around spikes 
 opts.BLpars = 0.01;        % std dev is 10 ms
 opts.Dmeth = 'corrcoef';     % use correlation coefficient
@@ -117,6 +117,7 @@ Gcon = struct('grps',[],'grpsizes',[],'ngrps',[],'Q',[]);
 spkfcn = cell(numel(opts.BLpars),1);
 
 bins = T(1)+bin/2:bin:T(2);
+
 
 %% analyse data
 for loop = 1:numel(opts.BLpars)

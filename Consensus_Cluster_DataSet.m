@@ -32,7 +32,7 @@ binlessopts.BLmeth = 'Gaussian';
 binlessopts.modopts = {{'sqEuclidean'},100};  % use 100 repetitions of k-means with Euclidean distance as basis for consensus
 binlessopts.BLpars = 1; % width of convolution window, in seconds (here SD of Gaussian)
 
-Qt = 0.001; % (seconds) spike-data quantisation step
+Qt = 0.01; % (seconds) time-resolution for convolution window : here 10 ms
 
 load([datapath 'DataList.mat'])  % load list of data file names
 nfiles = numel(DataList); 
