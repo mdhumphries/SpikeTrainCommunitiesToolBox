@@ -1,4 +1,4 @@
-function [grps,Qmax,grpscon,Qcon,ctr,maxQ] = allevsplitConTransitive(A,varargin)
+function [grps,Qmax,grpscon,Qcon,ctr,maxQ,varargout] = allevsplitConTransitive(A,varargin)
    
 % ALLEVSPLITCONTRANSITIVE partition graph eigenvectors of modularity matrix (with consensus)
 %   [C,Qmax,Ccon,Qc,N,Q] = ALLEVSPLITCON(A) splits the vertices of the graph in adjacency matrix
@@ -16,6 +16,11 @@ function [grps,Qmax,grpscon,Qcon,ctr,maxQ] = allevsplitConTransitive(A,varargin)
 %   cell array DIST. Set to '' to omit - default is: 'sqEuclidean' (squared Euclidean).
 %   Other options include: 'cityblock', 'correlation', 'cosine'. Runs the k-means
 %   clustering N times for each specified metric (default is 50); 
+%
+%   [C,Qmax,Ccon,Qc,N,Q,CLU] = ALLEVSPLITCON(...) where CLU is an optional output argument, 
+%   returns every single clustering of the adjacency matrix A in the first
+%   passs (i.e. before the consensus) - this is useful for further
+%   post-processsing.
 %
 %   Notes: 
 %   (1) This is a one-step multiple partition method, following up a
@@ -59,7 +64,7 @@ function [grps,Qmax,grpscon,Qcon,ctr,maxQ] = allevsplitConTransitive(A,varargin)
 %   (4) Arthur, D. & Vassilvitskii, S. (2007) k-means++: the advantages of careful seeding. 
 %   SODA '07: Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms, Society for Industrial and Applied Mathematics, 1027-1035
 %
-%   Mark Humphries 13/6/2014
+%   Mark Humphries 3/9/2014
 
 strDist = {'sqEuclidean'}; % 'cityblock','correlation','cosine'};
 nreps = 50; % of each distance metric
@@ -115,6 +120,7 @@ while ~blnConverged
             rpt = find(Q(:,numgrps) == max(Q(:,numgrps)));
             cl = (numgrps-1)*Treps + rpt(1);  % if more than 1, choose first arbitrarily...
             grps = allgrps(:,cl);  
+            varargout{1} = allgrps;
         end
     end
     
@@ -153,7 +159,9 @@ while ~blnConverged
         if blnSave
             eval(['A', num2str(ctr),' = A;']);  % store consensus matrix
             eval(['Groups', num2str(ctr),' = idx;']); 
-            save(fname,['A', num2str(ctr)],['Groups', num2str(ctr)],'ctr','-append');
+            eval(['AllGroups', num2str(ctr),' = allgrps;']); 
+            eval(['AllQ', num2str(ctr),' = Q;']);       
+            save(fname,['A', num2str(ctr)],['Groups', num2str(ctr)],['AllGroups', num2str(ctr)],['AllQ', num2str(ctr)],'ctr','-append');
         end
 
         m1 = mean(allWs(idx==1)); mx1 = max(allWs(idx==1)); mn1 =  min(allWs(idx==1));
