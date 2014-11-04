@@ -23,7 +23,7 @@ Humphries, M. D. (2011) Spike-train communities: finding groups of similar spike
 ### Undocumented features of the core algorithms:
 (1) Suitable for any network: undirected or directed, weighted or unweighted. For example, if using directed correlations between spike-trains, then the algorithm will still cluster into ensembles defined by that directed correlation.
 
-#Deployment
+## Deployment
 
 Download the ZIP file (button on right-hand menu)
 
