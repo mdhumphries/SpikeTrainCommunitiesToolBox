@@ -17,10 +17,16 @@ The original code released with Humphries (2011) has been updated to include "co
 
 The toolbox includes code to run the core algorithms for community detection, and top-level helper functions that take arrays of spike-train times as input, and do all processing necessary to run the ensemble-detection algorithms. These are developed separately as the core algorithms can run on any suitable similarity matrix, not just those constructed by the top-level functions.
 
-
 Original paper (supplied in Documentation/ folder): 
 Humphries, M. D. (2011) Spike-train communities: finding groups of similar spike trains J Neurosci, 31, 2321-2336
 
-Undocumented features of the core algorithms:
+### Undocumented features of the core algorithms:
 (1) Suitable for any network: undirected or directed, weighted or unweighted. For example, if using directed correlations between spike-trains, then the algorithm will still cluster into ensembles defined by that directed correlation.
 
+#Deployment
+
+Download the ZIP file (button on right-hand menu)
+
+Open anywhere on your MATLAB path
+
+Top-level script "Consensus_Cluster_Dataset" shows how to call the main function, and plots the results
