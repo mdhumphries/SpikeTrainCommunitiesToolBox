@@ -59,8 +59,9 @@ function [Gmax,Gcon,varargout] = consensus_cluster_spike_data_binless(spkdata,Di
 % There is one struct for each tested binless time-scale specified.
 %
 % [...,Sxy,BD] = CLUSTER_SPIKE_DATA_BINLESS(...) are optional outputs useful for further 
-% processing: Sxy is a cell array of the similarity matrices;  BD is a cell array of matrices containing the convolved spike-train vectors - each column is one 
-% spike train; For each of these outputs, there is one cell per tested binless time-scale.
+% processing: Sxy is a cell array of the similarity matrices;  BD is a cell array of matrices containing 
+% the convolved spike-train vectors (in spikes per second) - each column is one  spike train; 
+% For each of these outputs, there is one cell per tested binless time-scale.
 % 
 % Notes:
 % (1) Choice of Gaussian widths: typically, we choose a set of discrete binsizes based on 
@@ -85,7 +86,7 @@ function [Gmax,Gcon,varargout] = consensus_cluster_spike_data_binless(spkdata,Di
 % (5) Kruskal, P. B., Stanis, J. J., McNaughton, B. L., Thomas, P. J. (2007). A binless correlation measure reduces the variability
 % of memory reactivation estimates. Stat Med 26: 3997–4008.
 % 
-% Mark Humphries 28/1/2013
+% Mark Humphries 14/11/2014
 
 [r c] = size(Didxs);
 if r==1 Didxs = Didxs'; end   % make column vector
@@ -263,7 +264,9 @@ function [spkfcn,idxs] = convolve_spiketrains(spkdata,h,shiftbase,Didxs,bins,bin
         disp('I ran into a problem removing non-firing cells')
         keyboard
     end
-
+    
+    % convert to firing rate (spikes/s)
+    spkfcn = spkfcn ./ bin; % sums to 1 if spike in every bin
 
 function [Sxy] = constructS(spkfcn,Nidxs,opts)
 
