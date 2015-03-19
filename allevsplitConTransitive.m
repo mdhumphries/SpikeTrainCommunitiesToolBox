@@ -1,7 +1,7 @@
 function [grps,Qmax,grpscon,Qcon,ctr,maxQ,varargout] = allevsplitConTransitive(A,varargin)
    
 % ALLEVSPLITCONTRANSITIVE partition graph eigenvectors of modularity matrix (with consensus)
-%   [C,Qmax,Ccon,Qc,N,Q] = ALLEVSPLITCON(A) splits the vertices of the graph in adjacency matrix
+%   [C,Qmax,Ccon,Qc,N,Q] = ALLEVSPLITCONTRANSITIVE(A) splits the vertices of the graph in adjacency matrix
 %   A into multiple groups. 
 %   The groups defined in vector C are for the parition with maximum
 %   modularity; each element takes an integer value to indicate group membership 
@@ -12,17 +12,25 @@ function [grps,Qmax,grpscon,Qcon,ctr,maxQ,varargout] = allevsplitConTransitive(A
 %   N is the number of iterations until consensus was reached. Q is the
 %   vector of maxium Q scores for each tested number of groups
 %   
-%   ...= ALLEVSPLITCON(...,DIST,N) sets k-means distance metrics to the strings in 
+%   ...= ALLEVSPLITCONTRANSITIVE(...,DIST,N) sets k-means distance metrics to the strings in 
 %   cell array DIST. Set to '' to omit - default is: 'sqEuclidean' (squared Euclidean).
 %   Other options include: 'cityblock', 'correlation', 'cosine'. Runs the k-means
 %   clustering N times for each specified metric (default is 50); 
 %
-%   [C,Qmax,Ccon,Qc,N,Q,CLU] = ALLEVSPLITCON(...) where CLU is an optional output argument, 
+%   [C,Qmax,Ccon,Qc,N,Q,CLU] = ALLEVSPLITCONTRANSITIVE(...) where CLU is an optional output argument, 
 %   returns every single clustering of the adjacency matrix A in the first
 %   passs (i.e. before the consensus) - this is useful for further
 %   post-processsing.
 %
 %   Notes: 
+%   (0) Adjacency matrix: this can be weighted and directed. When analysing time-series, 
+%   this can be the similarity matrix. However, when
+%   starting from a similarity  matrix, ensure: 
+%       (i) no self-loops - diagonal of A is all zeros; 
+%       (ii) it's a similiarity matrix, not a correlation matrix: no
+%       negative values
+%   Warnings for both of these will be given
+%
 %   (1) This is a one-step multiple partition method, following up a
 %   suggestion in Newman (2006) that all eigenvectors corresponding to positive
 %   eigenvalues of the modularity matrix contain information about group
@@ -64,13 +72,26 @@ function [grps,Qmax,grpscon,Qcon,ctr,maxQ,varargout] = allevsplitConTransitive(A
 %   (4) Arthur, D. & Vassilvitskii, S. (2007) k-means++: the advantages of careful seeding. 
 %   SODA '07: Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms, Society for Industrial and Applied Mathematics, 1027-1035
 %
-%   Mark Humphries 3/9/2014
+%   Mark Humphries 19/3/2015
 
 strDist = {'sqEuclidean'}; % 'cityblock','correlation','cosine'};
 nreps = 50; % of each distance metric
 
-blnSave = 0; % internal flag for setting saving of data
+%% check if the passed matrix is a graph: catch common errors when passing a similarity matrix
 
+% (1) no self-loops allowed
+if ~all(diag(A)==0) 
+    warning('Results likely unreliable: adjacency matrix has self-loops. Set diagonal to zero if no self-loops are needed.')
+end
+
+% (2) no negative links
+x = sum(sum(A < 0));
+if x > 0
+    warning('Results likely unreliable: adjacency matrix has negative values')
+end
+
+%% set up options
+blnSave = 0; % internal flag for setting saving of data
 if nargin >= 2
     if ~isempty(varargin{1}) 
         strDist = varargin{1}; 
@@ -82,11 +103,14 @@ if nargin >= 2
     if ~isempty(varargin{2}) nreps = varargin{2}; end
 end
 
+% set up saving of each iteration
 if blnSave  
     fname = ['Consensus_Iterations_' datestr(now,30)];
     save(fname,'strDist','nreps');  % save initial data to allow -append to work below
 end
 
+%% internal parameters
+% total number of clusterings for a given number of groups
 Treps = nreps .* numel(strDist);
 
 [nIDs,c] = size(A);
@@ -96,8 +120,9 @@ ctr = 1;
 Gstar = ones(nIDs,1); % current clustering
 mQ = []; stdQ = [];
 
-Aorig = A;
+Aorig = A;  % save a copy of the original matrix for Q calculations
 
+%% main clustering loop
 while ~blnConverged
     [allgrps,Vpos,B,Q] = dosplit(A,nreps,Treps,strDist);
    
