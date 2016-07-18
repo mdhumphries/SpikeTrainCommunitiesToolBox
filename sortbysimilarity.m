@@ -10,7 +10,10 @@ function [G,Sgrp,Sin,Sout] = sortbysimilarity(G,Sxy)
 %   Sout: the mean inter-group similatiry of each spike-train (useful for
 %   detecting weak group membership)
 %
-% Mark Humphries 18/10/2011
+%   18/7/2016: fixed incorrect normalisation in calculation of mean
+%   similarities (adjusted by -1 incorrectly)
+%
+% Mark Humphries 18/7/2016
 
 IDs = unique(G(:,1));
 Grps = unique(G(:,2));
@@ -21,10 +24,10 @@ Sin = zeros(nIDs,1); Sout = zeros(nIDs,1); Sgrp = zeros(Ngrps,1);
 % compute each neurons similarity within their group, and outside of their group...
 for j = 1:nIDs
     thisgrp = G(j,2);
-    ingrp = find(G(:,2) == thisgrp); 
+    ingrp = find(G(:,2) == thisgrp); ingrp(ingrp == IDs(j)) = []; % exclude itself
     outgrp = find(G(:,2) ~= thisgrp); 
-    Sin(j) = sum(Sxy(j,ingrp)) ./ (numel(ingrp)-1);   % mean intra-group similarity for that neuron
-    Sout(j) = sum(Sxy(j,outgrp)) ./ (numel(outgrp)-1);   % mean inter-group similarity for that neuron
+    Sin(j) = sum(Sxy(j,ingrp)) ./ numel(ingrp);   % mean intra-group similarity for that neuron
+    Sout(j) = sum(Sxy(j,outgrp)) ./ numel(outgrp);   % mean inter-group similarity for that neuron
     % Sin(j) = median(Sxy(j,ingrp));   % median intra-group similarity for that neuron
     % Sout(j) = median(Sxy(j,outgrp));   % median inter-group similarity for that neuron
 end
