@@ -4,16 +4,18 @@ function [G,Sgrp,Sin,Sout] = sortbysimilarity(G,Sxy)
 % [NG,Sg,Sin,Sout] = SORTBYSIMILARITY(G,S), given the 2-column group structure vector G ([Cell ID, Group #]), 
 % and the similarity matrix S from which that group structure was found (as
 % returned by CLUSTER_SPIKE_DATA_X...), returns:
-%   NG: the groups indexed by order of mean intra-group similarity 
+%   NG: the groups indexed by order of mean intra-group similarity: 1 - lowest; N - highest 
 %   Sg: the mean intra-group similarity of the whole group (defines NG)
-%   Sin: the mean intra-group similarity of each spike-train (ensemble average defines Sg) 
-%   Sout: the mean inter-group similatiry of each spike-train (useful for
+%   [note: is returned in order of the original groups]
+%   Sin: the mean intra-group similarity of each node (ensemble average defines Sg) 
+%   Sout: the mean inter-group similarity of each node (useful for
 %   detecting weak group membership)
 %
-%   18/7/2016: fixed incorrect normalisation in calculation of mean
+%   30/7/2016: fixed incorrect normalisation in calculation of mean
 %   similarities (adjusted by -1 incorrectly)
+%   23/9/2016: fixed divide by zero bug when group size = 1   
 %
-% Mark Humphries 18/7/2016
+% Mark Humphries 23/9/2016
 
 IDs = unique(G(:,1));
 Grps = unique(G(:,2));
@@ -21,15 +23,17 @@ nIDs = numel(IDs);
 Ngrps = numel(Grps);
 Sin = zeros(nIDs,1); Sout = zeros(nIDs,1); Sgrp = zeros(Ngrps,1); 
 
-% compute each neurons similarity within their group, and outside of their group...
+% compute each node's similarity within their group, and outside of their group...
 for j = 1:nIDs
     thisgrp = G(j,2);
     ingrp = find(G(:,2) == thisgrp); ingrp(ingrp == IDs(j)) = []; % exclude itself
     outgrp = find(G(:,2) ~= thisgrp); 
-    Sin(j) = sum(Sxy(j,ingrp)) ./ numel(ingrp);   % mean intra-group similarity for that neuron
-    Sout(j) = sum(Sxy(j,outgrp)) ./ numel(outgrp);   % mean inter-group similarity for that neuron
-    % Sin(j) = median(Sxy(j,ingrp));   % median intra-group similarity for that neuron
-    % Sout(j) = median(Sxy(j,outgrp));   % median inter-group similarity for that neuron
+    if numel(ingrp) > 1  % otherwise leave these as zero
+        Sin(j) = sum(Sxy(j,ingrp)) ./ numel(ingrp);   % mean intra-group similarity for that node
+    end
+    Sout(j) = sum(Sxy(j,outgrp)) ./ numel(outgrp);   % mean inter-group similarity for that node
+    % Sin(j) = median(Sxy(j,ingrp));   % median intra-group similarity for that node
+    % Sout(j) = median(Sxy(j,outgrp));   % median inter-group similarity for that node
 end
 
 % compute each group's similarity measure
