@@ -266,7 +266,7 @@ function [spkfcn,idxs] = convolve_spiketrains(spkdata,h,shiftbase,Didxs,bins,bin
 %         % keyboard
 %     end
    
-    keyboard
+   %  keyboard
     
     idxs = Didxs; 
     try
