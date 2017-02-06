@@ -217,11 +217,12 @@ function [spkfcn,idxs] = convolve_spiketrains(spkdata,h,shiftbase,Didxs,bins,bin
     nspikes = NaN; % just in case there are no spikes....
         
     for iN = 1:Nidxs
-        % for each spike-train
+        % get all sigs for this spike-train 
+        % spkts = spks_sets{iN};
         spkts = spkdata(spkdata(:,1) == Didxs(iN),2); % all spike-times passed to function
         spkts((spkts < T(1)) | (spkts > T(2))) = [];  % set of requested spike times
-        nspikes(iN) = numel(spkts);  % count how many spikes
-        spkts = spkts - T(1);  % time-stamp with respect to the first bin
+        nspikes(iN) = numel(spkts);
+        keyboard
         for iS =  1:numel(spkts)
             spk = round(spkts(iS) / bin);
             ixs = spk+x;  % shift to spike-time
