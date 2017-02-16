@@ -120,14 +120,15 @@ Gcon = struct('grps',[],'grpsizes',[],'ngrps',[],'Q',[]);
 
 spkfcn = cell(numel(opts.BLpars),1);
 
-bins = T(1)+bin/2:bin:T(2);
+% bins = T(1)+bin/2:bin:T(2);
+bins = T(1):bin:T(2);
 
 
 %% analyse data
 for loop = 1:numel(opts.BLpars)
     
     % set up convolution window if using...
-    sig = opts.BLpars(loop)/bin;
+    sig = round(opts.BLpars(loop)/bin);  % 1 SD in counts of bins
     switch opts.BLmeth
         case 'Gaussian'
             x = [-5*sig:1:5*sig]';  % x-axis values of the discretely sampled Gaussian, out to 5xSD
@@ -141,12 +142,13 @@ for loop = 1:numel(opts.BLpars)
     end      
     h = h ./sum(h); % make sure kernel has unit area, then can use for rate functions
     
-
+    
     % convolve window with data-spike trains
     [spkfcn{loop},idxs] = convolve_spiketrains(spkdata,h,shiftbase,Didxs,bins,bin,T,opts,x);
     Nidxs = numel(idxs);
     Rn{loop} = idxs;  % list of retained spike-train indices
     
+
     %% now compute selected distance between those functions
     [Sxy{loop}] = constructS(spkfcn{loop},Nidxs,opts); 
 
@@ -222,10 +224,14 @@ function [spkfcn,idxs] = convolve_spiketrains(spkdata,h,shiftbase,Didxs,bins,bin
         spkts((spkts < T(1)) | (spkts > T(2))) = [];  % set of requested spike times
         nspikes(iN) = numel(spkts);  % count how many spikes
         spkts = spkts - T(1);  % time-stamp with respect to the first bin
+        try
         for iS =  1:numel(spkts)
             spk = round(spkts(iS) / bin);
             ixs = spk+x;  % shift to spike-time
             spkfcn(ixs(ixs>0 & ixs<=numel(bins)),iN) = spkfcn(ixs(ixs>0 & ixs<=numel(bins)),iN) + h(ixs>0 & ixs<=numel(bins)); % convolve, truncating outside range
+        end
+        catch
+            keyboard
         end
     end
     
