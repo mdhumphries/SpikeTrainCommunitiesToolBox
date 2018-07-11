@@ -14,8 +14,9 @@ function [G,Sgrp,Sin,Sout] = sortbysimilarity(G,Sxy)
 %   30/7/2016: fixed incorrect normalisation in calculation of mean
 %   similarities (adjusted by -1 incorrectly)
 %   23/9/2016: fixed divide by zero bug when group size = 1   
+%   11//7/2018: fixed bug where did not compute similarity for groups of size 2
 %
-% Mark Humphries 23/9/2016
+% Mark Humphries
 
 IDs = unique(G(:,1));
 Grps = unique(G(:,2));
@@ -28,7 +29,7 @@ for j = 1:nIDs
     thisgrp = G(j,2);
     ingrp = find(G(:,2) == thisgrp); ingrp(ingrp == IDs(j)) = []; % exclude itself
     outgrp = find(G(:,2) ~= thisgrp); 
-    if numel(ingrp) > 1  % otherwise leave these as zero
+    if numel(ingrp) > 0  % otherwise leave these as zero
         Sin(j) = sum(Sxy(j,ingrp)) ./ numel(ingrp);   % mean intra-group similarity for that node
     end
     Sout(j) = sum(Sxy(j,outgrp)) ./ numel(outgrp);   % mean inter-group similarity for that node
