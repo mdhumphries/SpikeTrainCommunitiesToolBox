@@ -13,12 +13,13 @@ We showed how the idea of community detection on arbitrary networks are ideally 
 
 The purpose of this toolbox is to develop the community-detection algorithms best-suited for the ensemble-detection problem. 
 
-The original code released with Humphries (2011) has been updated to include "consensus" community detection, that dramaticaly improves the reiability of the clustering. For details, see Documentation.
+The original code released with Humphries (2011) has been updated to include "consensus" community detection, that dramaticaly improves the reiability of the clustering. For details, see Documentation. This consensus approach was published by us in [Bruno, Frost & Humphries (2015) Neuron](https://doi.org/10.1016/j.neuron.2015.03.005). Please cite that paper when using this method.
 
 The toolbox includes code to run the core algorithms for community detection, and top-level helper functions that take arrays of spike-train times as input, and do all processing necessary to run the ensemble-detection algorithms. These are developed separately as the core algorithms can run on any suitable similarity matrix, not just those constructed by the top-level functions.
 
 Original paper (supplied in Documentation/ folder): 
 Humphries, M. D. (2011) Spike-train communities: finding groups of similar spike trains J Neurosci, 31, 2321-2336
+Bruno, A, Frost, W, & Humphries, M. D. (2015) Modular Deconstruction Reveals the Dynamical and Physical Building Blocks of a Locomotion Motor Program. Neuron, 86, 304-318.
 
 ### Undocumented features of the core algorithms:
 (1) Suitable for any network: undirected or directed, weighted or unweighted. For example, if using directed correlations between spike-trains, then the algorithm will still cluster into ensembles defined by that directed correlation.
